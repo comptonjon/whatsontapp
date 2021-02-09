@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User')
+const jsonschema = require('jsonschema');
+const Venue = require('../models/Venue')
 
 router.get('/', async (req, res, next) => {
     try {
-        const users = await User.get();
-        return res.json({users});
+        const venues = await Venue.get();
+        return res.json({venues});
     } catch (e) {
         console.log("ERROR FETCHING")
     }
@@ -13,18 +14,18 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        const user = await User.create(req.body);
-        return res.json({user});
+        const venue = await Venue.create(req.body);
+        return res.status(201).json({venue});
     } catch (e) {
-        
+        console.log(e);
     }
 });
 
 router.patch('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const updatedUser = await User.update(id, req.body);
-        return res.send(updatedUser);
+        const updatedVenue = await Venue.update(id, req.body);
+        return res.json({venue: updatedVenue});
     } catch (e) {
         console.log(e);
     }
@@ -33,11 +34,10 @@ router.patch('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const result = await User.delete(id);
+        const result = await Venue.delete(id);
         return res.json(result)
     } catch (e) {
         console.log(e);
-        console.log("foober")
     }
 });
 

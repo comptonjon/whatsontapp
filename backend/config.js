@@ -1,17 +1,7 @@
-const { Client } = require('pg');
+const SECRET_WAT_KEY = 'secret-key';
+const BCRYPT_WORK_FACTOR = 12;
 
-let DB_URI;
-
-if (process.env.NODE_ENV === "test") {
-    DB_URI = "postgresql:///whats_on_tapp_test";
-} else {
-    DB_URI = "postgresql:///whats_on_tapp";
-}
-
-let db = new Client({
-    connectionString: DB_URI
-});
-
-db.connect();
-
-module.exports = db;
+module.exports = { 
+    SECRET_WAT_KEY,
+    BCRYPT_WORK_FACTOR    
+};
