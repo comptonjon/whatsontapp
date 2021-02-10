@@ -1,5 +1,6 @@
 const db = require('../db');
 const { getUpdateStringAndValues } = require('../helpers/getUpdateString');
+const getCreateString = require('../helpers/getCreateString');
 
 class Venue {
     static async get() {
@@ -8,12 +9,14 @@ class Venue {
     };
 
     static async create(data) {
-        const { name, address1, address2, city, state, zip, url, phone } = data;
-        const results = await db.query(
-            `INSERT INTO venues (name, address1, address2, city, state, zip, url, phone)
-                VALUES
-                ($1, $2, $3, $4, $5, $6, $7, $8)
-                RETURNING *`, [name, address1, address2, city, state, zip, url, phone]);
+        // const { name, address1, address2, city, state, zip, url, phone } = data;
+        // const results = await db.query(
+        //     `INSERT INTO venues (name, address1, address2, city, state, zip, url, phone)
+        //         VALUES
+        //         ($1, $2, $3, $4, $5, $6, $7, $8)
+        //         RETURNING *`, [name, address1, address2, city, state, zip, url, phone]);
+        const { createString, values } = getCreateString("venues", data);
+        const results = await db.query(createString, values);
         if (results.rows.length === 0) {
             throw new Error();
         }

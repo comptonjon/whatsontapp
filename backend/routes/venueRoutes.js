@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jsonschema = require('jsonschema');
 const Venue = require('../models/Venue')
+const getCreateString = require('../helpers/getCreateString');
 
 router.get('/', async (req, res, next) => {
     try {
@@ -15,6 +16,7 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     try {
         const venue = await Venue.create(req.body);
+        getCreateString("venues", req.body);
         return res.status(201).json({venue});
     } catch (e) {
         console.log(e);

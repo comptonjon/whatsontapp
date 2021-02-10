@@ -1,22 +1,34 @@
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const { BCRYPT_WORK_FACTOR } = require('../config')
-const { getUpdateStringAndValues } = require('../helpers/getUpdateString')
+const { getUpdateStringAndValues } = require('../helpers/getUpdateString');
+const getCreateString = require('../helpers/getCreateString');
 
 class User {
+    static async authenticate(data) {
+        const { username, password } = data;
+        const results = await db.query(`SELECT * FROM users WHERE username=$1`, [username]);
+        if (results.rows.length === 0) {
+            throw new Error();
+        } 
+        const user = results.rows[0];
+        const authenticated = await bcrypt.compare(password, user.password);
+        if (!authenticated) {
+            throw new Error();
+        }
+        delete user.password;
+        return user;
+    }
+
     static async get() {
         const results = await db.query('SELECT username, email, city, state, zip, is_owner FROM users');
         return results.rows;
     };
 
-    static async create(data) {
-        const { username, password, email, city, state, zip } = data;
-        const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-        const results = await db.query(
-            `INSERT INTO users (username, password, email, city, state, zip)
-                VALUES
-                ($1, $2, $3, $4, $5, $6)
-                RETURNING *`, [username, hashedPassword, email, city, state, zip]);
+    static async register(data) {
+        data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
+        const { createString, values } = getCreateString("users", data);
+        const results = await db.query(createString, values);
         if (results.rows.length === 0) {
             throw new Error();
         }
@@ -27,7 +39,6 @@ class User {
     };
 
     static async update(id, data) {
-        console.log(id, data);
         const { updateString, values } = getUpdateStringAndValues("users", id, data);
         const result = await db.query(updateString, values);
         return result.rows[0];
